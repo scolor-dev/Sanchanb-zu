@@ -4,8 +4,8 @@ import { persist } from "zustand/middleware";
 export type CharacterStateKey = "idle" | "normal" | "happy" | "sad" | "angry";
 
 export type CharacterModel = {
-  characterId: string; // 内部ID
-  name: string;        // 表示名（保存する）
+  characterId: string;
+  name: string;
   state: CharacterStateKey;
   comment: string;
   updatedAt: number;
