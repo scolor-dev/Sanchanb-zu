@@ -1,79 +1,79 @@
-export default function Home() {
+// src/pages/HomePage.tsx
+import { useMemo, useState } from "react";
+import { useTodoStore } from "../stores/todoStore";
+import TodoAddModal from "../components/modals/TodoAddModal";
+
+function todayYYYYMMDD() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export default function HomePage() {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState(todayYYYYMMDD());
+
+  // ✅ “状態”を購読（これが安全）
+  const allTodos = useTodoStore((s) => s.todos);
+  const removeTodo = useTodoStore((s) => s.removeTodo);
+
+  // ✅ 表示用の派生はコンポーネント側でメモ化
+  const todos = useMemo(() => {
+    return allTodos.filter((t) => t.date === date);
+  }, [allTodos, date]);
+
   return (
-    <div className="w-full">
-      {/* PC: 左本文 / 右立ち絵 */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-        
-        {/* Left: Content */}
-        <section className="min-w-0">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Home
-            </h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        />
 
-            <p className="mt-2 text-sm text-slate-600">
-              ここにプロダクトの説明や、機能への導線を置きます。
-            </p>
+        <button
+          onClick={() => setOpen(true)}
+          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          ＋ Todo追加
+        </button>
+      </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="text-sm font-semibold">今日の状態</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  コンディション、タスク、ログなど
-                </div>
+      <div className="space-y-3">
+        {todos.length === 0 && (
+          <div className="text-sm text-slate-500">この日のTodoはありません。</div>
+        )}
+
+        {todos.map((todo) => (
+          <div
+            key={todo.id}
+            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-sm font-semibold text-slate-900">{todo.title}</div>
+                <div className="mt-1 text-xs text-slate-500">重要度: {todo.priority}</div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="text-sm font-semibold">クイック操作</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  投稿、記録、設定など
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
               <button
-                className="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-                type="button"
+                onClick={() => removeTodo(todo.id)}
+                className="text-xs text-red-500 hover:underline"
               >
-                はじめる
+                削除
               </button>
             </div>
+
+            {todo.content && (
+              <div className="mt-3 text-sm text-slate-700">{todo.content}</div>
+            )}
           </div>
-        </section>
-
-        {/* Right: Character */}
-        <aside className="lg:sticky lg:top-20">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="text-sm font-semibold text-slate-900">
-              さんちゃん坊主
-            </div>
-            <div className="mt-1 text-xs text-slate-500">
-              キャラクター
-            </div>
-
-            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-              <img
-                src="/character.png"
-                alt="character"
-                className="h-[520px] w-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-
-              {/* 画像が無いとき用 */}
-              <div className="grid h-[520px] w-full place-items-center text-sm text-slate-500">
-                /public/character.png に画像を置いてください
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-              PCでは右固定。スクロール時は追従します。
-            </div>
-          </div>
-        </aside>
+        ))}
       </div>
+
+      <TodoAddModal open={open} onClose={() => setOpen(false)} initialDate={date} />
     </div>
   );
 }
