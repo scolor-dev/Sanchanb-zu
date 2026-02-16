@@ -1,4 +1,4 @@
-// src/components/modals/TodoAddModal.tsx
+// src/components/modals/TodoAddModal.tsx　編集部分は時間あったら新しいファイルに
 import { useEffect, useMemo, useState } from "react";
 // ✨ 変更: TodoItem 型をインポートに追加
 import { useTodoStore, type TodoItem } from "../../stores/todoStore";
