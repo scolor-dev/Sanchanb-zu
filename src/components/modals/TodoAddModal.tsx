@@ -1,6 +1,7 @@
 // src/components/modals/TodoAddModal.tsx
 import { useEffect, useMemo, useState } from "react";
-import { useTodoStore } from "../../stores/todoStore";
+// ✨ 変更: TodoItem 型をインポートに追加
+import { useTodoStore, type TodoItem } from "../../stores/todoStore";
 
 type Priority = 1 | 2 | 3;
 
@@ -8,6 +9,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   initialDate?: string; // YYYY-MM-DD
+  // ✨ 追加: 編集対象を受け取る (nullなら新規作成モード)
+  editTarget?: TodoItem | null;
 };
 
 function todayYYYYMMDD() {
@@ -18,8 +21,11 @@ function todayYYYYMMDD() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function TodoAddModal({ open, onClose, initialDate }: Props) {
+// ✨ 引数に editTarget を追加
+export default function TodoAddModal({ open, onClose, initialDate, editTarget }: Props) {
   const addTodo = useTodoStore((s) => s.addTodo);
+  // ✨ 追加: 更新用のアクションを取得
+  const updateTodo = useTodoStore((s) => s.updateTodo);
 
   const defaultDate = useMemo(() => initialDate ?? todayYYYYMMDD(), [initialDate]);
 
@@ -28,14 +34,24 @@ export default function TodoAddModal({ open, onClose, initialDate }: Props) {
   const [content, setContent] = useState("");
   const [priority, setPriority] = useState<Priority>(2);
 
-  // openになったら初期化
+  // ✨ 変更: open または editTarget が変わった時に初期値をセット
   useEffect(() => {
     if (!open) return;
-    setDate(defaultDate);
-    setTitle("");
-    setContent("");
-    setPriority(2);
-  }, [open, defaultDate]);
+
+    if (editTarget) {
+      // 編集モード：既存のデータを入れる
+      setDate(editTarget.date);
+      setTitle(editTarget.title);
+      setContent(editTarget.content);
+      setPriority(editTarget.priority);
+    } else {
+      // 新規作成モード：リセット
+      setDate(defaultDate);
+      setTitle("");
+      setContent("");
+      setPriority(2);
+    }
+  }, [open, defaultDate, editTarget]);
 
   // Escで閉じる
   useEffect(() => {
@@ -49,18 +65,34 @@ export default function TodoAddModal({ open, onClose, initialDate }: Props) {
 
   const canSave = title.trim().length > 0;
 
+  // ✨ 変更: 保存処理を分岐
   const submit = () => {
     if (!canSave) return;
-    addTodo({
-      date,
-      title: title.trim(),
-      content: content.trim(),
-      priority,
-    });
+
+    if (editTarget) {
+      // 編集モード：更新を実行
+      updateTodo(editTarget.id, {
+        date,
+        title: title.trim(),
+        content: content.trim(),
+        priority,
+      });
+    } else {
+      // 新規モード：追加を実行
+      addTodo({
+        date,
+        title: title.trim(),
+        content: content.trim(),
+        priority,
+      });
+    }
     onClose();
   };
 
   if (!open) return null;
+
+  // ✨ 文言の切り替え用変数
+  const isEdit = !!editTarget;
 
   return (
     <div className="fixed inset-0 z-50">
@@ -80,9 +112,12 @@ export default function TodoAddModal({ open, onClose, initialDate }: Props) {
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-lg font-semibold text-slate-900">Todoを追加</div>
+              {/* ✨ 文言変更 */}
+              <div className="text-lg font-semibold text-slate-900">
+                {isEdit ? "Todoを編集" : "Todoを追加"}
+              </div>
               <div className="mt-1 text-sm text-slate-500">
-                日付・重要度・内容を登録します
+                {isEdit ? "内容を更新します" : "日付・重要度・内容を登録します"}
               </div>
             </div>
 
@@ -180,7 +215,8 @@ export default function TodoAddModal({ open, onClose, initialDate }: Props) {
                   : "bg-slate-200 text-slate-500 cursor-not-allowed",
               ].join(" ")}
             >
-              追加
+              {/* ✨ 文言変更 */}
+              {isEdit ? "更新" : "追加"}
             </button>
           </div>
         </div>
