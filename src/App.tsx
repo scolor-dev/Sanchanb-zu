@@ -5,7 +5,6 @@ import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/HomePage";
 import About from "./pages/AboutPage";
 import './App.css'
-import { Link } from "react-router-dom";
 
 function App() {
   const [count, setCount] = useState(0)

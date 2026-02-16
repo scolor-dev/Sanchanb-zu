@@ -1,61 +1,39 @@
 import { NavLink, Outlet } from "react-router-dom";
 
+function cn(...xs) {
+  return xs.filter(Boolean).join(" ");
+}
+
 export default function AppLayout() {
-  const linkBase =
-    "rounded-md px-3 py-2 text-sm font-medium transition";
-  const linkActive =
-    "bg-slate-900 text-white";
-  const linkInactive =
-    "text-slate-700 hover:bg-slate-100 hover:text-slate-900";
+  const linkClass = ({ isActive }) =>
+    cn(
+      "px-3 py-2 text-sm font-medium transition",
+      isActive ? "text-slate-900" : "text-slate-600 hover:text-slate-900"
+    );
 
   return (
-    <div className="min-h-dvh bg-slate-50 text-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-slate-900 text-white">
-              S
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold">Sanchanb-zu</div>
-              <div className="text-xs text-slate-500">header + layout</div>
-            </div>
+    <div className="min-h-dvh bg-white text-slate-900">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
+        <div className="flex h-14 w-full items-center justify-between px-6">
+          <div className="flex items-center gap-3">
+            <div className="text-sm font-semibold">さんちゃん坊主</div>
           </div>
 
           <nav className="flex items-center gap-2">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `${linkBase} ${isActive ? linkActive : linkInactive}`
-              }
-            >
+            <NavLink to="/" end className={linkClass}>
               Home
             </NavLink>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `${linkBase} ${isActive ? linkActive : linkInactive}`
-              }
-            >
+            <NavLink to="/about" className={linkClass}>
               About
             </NavLink>
           </nav>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      {/* ページはそのまま貼り付け（Outlet） */}
+      <main className="w-full px-6 py-6">
         <Outlet />
       </main>
-
-      {/* Footer（要らなければ消してOK） */}
-      <footer className="border-t bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-4 text-xs text-slate-500">
-          © {new Date().getFullYear()} Sanchanb-zu
-        </div>
-      </footer>
     </div>
   );
 }
