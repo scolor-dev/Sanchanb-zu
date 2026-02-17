@@ -24,7 +24,6 @@ export default function About() {
 
     const total = weeklyTodos.length;
     // isCompleted が true のものを数える
-    const completed = weeklyTodos.filter((t) => t.isCompleted).boolean; // 間違い修正: filterの結果のlengthが必要
     const completedCount = weeklyTodos.filter((t) => t.isCompleted).length;
 
     return {
