@@ -182,10 +182,14 @@ export default function HomePage() {
                 // ✨ 変更: カードの背景も少し透過させてなじませる (bg-white/90など)
                 className={[
                   "rounded-2xl border p-4 shadow-sm transition-colors backdrop-blur-sm",
-                  isPastAndIncomplete
-                    ? "bg-slate-100/90 border-slate-200"
-                    : todo.isCompleted
+                  todo.isCompleted
                     ? "bg-green-50/90 border-green-200"
+                    : todo.priority === 3
+                    ? "bg-red-50/90 border-red-300"
+                    : todo.priority === 2
+                    ? "bg-yellow-50/90 border-yellow-300"
+                    : isPastAndIncomplete
+                    ? "bg-slate-100/90 border-slate-200"
                     : "bg-white/90 border-slate-200",
                 ].join(" ")}
               >
