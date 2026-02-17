@@ -6,3 +6,4 @@
 - Tailwind CSS
 - Zustand
 - Electron
+- ESLint
