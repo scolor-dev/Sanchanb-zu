@@ -15,7 +15,7 @@ export default function AppHeader() {
     );
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
         <div className="text-sm font-semibold">さんちゃん坊主</div>
 
