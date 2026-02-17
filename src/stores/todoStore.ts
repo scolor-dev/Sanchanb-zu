@@ -10,11 +10,12 @@ export type TodoItem = {
   title: string;
   content: string;
   priority: Priority;
+  isCompleted: boolean; //  追加: 完了したかどうか
   createdAt: number;
   updatedAt: number;
 };
 
-type TodoInput = Omit<TodoItem, "id" | "createdAt" | "updatedAt">;
+type TodoInput = Omit<TodoItem, "id" | "createdAt" | "updatedAt" | "isCompleted">;
 
 type TodoState = {
   todos: TodoItem[];
@@ -24,6 +25,7 @@ type TodoState = {
     id: string,
     patch: Partial<Omit<TodoItem, "id" | "createdAt">>
   ) => void;
+  toggleTodo: (id: string) => void; //  追加: 完了/未完了を切り替える関数
   removeTodo: (id: string) => void;
   clearAll: () => void;
 };
@@ -40,9 +42,16 @@ export const useTodoStore = create<TodoState>()(
       addTodo: (input) => {
         const id = newId();
         const now = Date.now();
-        const item: TodoItem = { id, ...input, createdAt: now, updatedAt: now };
+        // ✨ isCompleted: false を初期値として設定
+        const item: TodoItem = { 
+          id, 
+          ...input, 
+          isCompleted: false, 
+          createdAt: now, 
+          updatedAt: now 
+        };
 
-        set((s) => ({ todos: [...s.todos, item] })); // immutable
+        set((s) => ({ todos: [...s.todos, item] }));
         return id;
       },
 
@@ -51,14 +60,17 @@ export const useTodoStore = create<TodoState>()(
         set((s) => ({
           todos: s.todos.map((t) =>
             t.id === id
-              ? {
-                  ...t,
-                  ...patch,
-                  id: t.id,
-                  createdAt: t.createdAt,
-                  updatedAt: now,
-                }
+              ? { ...t, ...patch, updatedAt: now }
               : t
+          ),
+        }));
+      },
+
+      // ✨ 追加: 完了状態を反転させるアクション
+      toggleTodo: (id) => {
+        set((s) => ({
+          todos: s.todos.map((t) =>
+            t.id === id ? { ...t, isCompleted: !t.isCompleted } : t
           ),
         }));
       },
