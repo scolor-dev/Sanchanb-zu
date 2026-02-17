@@ -27,25 +27,25 @@ type CharacterStore = {
 };
 
 const ICON_BY_STATE: Record<CharacterStateKey, string> = {
-  idle: "/character/icon-idle.png",
-  normal: "/character/icon-normal.png",
-  happy: "/character/icon-happy.png",
-  sad: "/character/icon-sad.png",
-  angry: "/character/icon-angry.png",
+  idle: "/character/icon_sun_good.png",
+  normal: "/character/icon_sun_good.png",
+  happy: "/character/icon_sun_good.png",
+  sad: "/character/icon_sun_good.png",
+  angry: "/character/icon_sun_good.png",
 };
 
 const STAND_BY_STATE: Record<CharacterStateKey, string> = {
-  idle: "/character/stand-idle.png",
-  normal: "/character/stand-normal.png",
-  happy: "/character/stand-happy.png",
-  sad: "/character/stand-sad.png",
-  angry: "/character/stand-angry.png",
+  idle: "/character/sun_sad.png",
+  normal: "/character/sun_happy.png",
+  happy: "/character/sun_happy.png",
+  sad: "/character/sun_sad.png",
+  angry: "/character/sun_angry.png",
 };
 
 const DEFAULT: CharacterModel = {
   characterId: "sanchan",
   name: "三日月",
-  state: "normal",
+  state: "happy",
   comment: "今日もがんばろう。",
   updatedAt: Date.now(),
 };

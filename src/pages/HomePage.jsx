@@ -1,7 +1,7 @@
 // src/pages/HomePage.jsx
 import { useMemo, useState } from "react";
 import { useTodoStore } from "../stores/todoStore";
-import TodoAddModal from "../components/modals/TodoAddModal";
+import TodoModal from "../components/modals/TodoModal";
 
 function todayYYYYMMDD() {
   const d = new Date();
@@ -101,7 +101,7 @@ export default function HomePage() {
       </div>
 
       {/* ✨ 修正: editTarget をモーダルに渡す */}
-      <TodoAddModal 
+      <TodoModal 
         open={open} 
         onClose={handleClose} 
         initialDate={date} 
