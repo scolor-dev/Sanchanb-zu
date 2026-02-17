@@ -46,7 +46,7 @@ const DEFAULT: CharacterModel = {
   characterId: "sanchan",
   name: "三日月",
   state: "normal",
-  comment: "今日もがんばろう。ね",
+  comment: "今日もがんばろう。",
   updatedAt: Date.now(),
 };
 
