@@ -1,4 +1,5 @@
 // src/components/modals/TodoAddModal.tsx
+// src/components/modals/TodoAddModal.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useTodoStore, type TodoItem } from "../../stores/todoStore";
 
@@ -122,7 +123,7 @@ function TodoAddModalUI({
                 {isEdit ? "Todoを編集" : "Todoを追加"}
               </div>
               <div className="mt-1 text-sm text-slate-500">
-                {isEdit ? "内容を更新します" : "日付・重要度・内容を登録します"}
+                日付・重要度・内容を登録します
               </div>
             </div>
 

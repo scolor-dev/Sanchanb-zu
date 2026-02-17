@@ -5,3 +5,5 @@
 - Vite
 - Tailwind CSS
 - Zustand
+- Electron
+- ESLint
