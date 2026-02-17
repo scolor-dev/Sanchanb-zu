@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:build": "tsc -p electron/tsconfig.json",
-    "electron:dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && npm run electron:build && electron .\""
+    "electron:dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && npm run electron:build && electron .\"",
+    "electron:pack": "npm run build && npm run electron:build && electron-builder"
   },
   "dependencies": {
     "react": "^19.2.0",
