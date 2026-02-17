@@ -36,7 +36,7 @@ function newId() {
 
 export const useTodoStore = create<TodoState>()(
   persist(
-    (set, get) => ({
+    (set) => ({ // (se, get) => ({
       todos: [],
 
       addTodo: (input) => {

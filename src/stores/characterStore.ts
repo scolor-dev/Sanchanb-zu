@@ -44,7 +44,7 @@ const STAND_BY_STATE: Record<CharacterStateKey, string> = {
 
 const DEFAULT: CharacterModel = {
   characterId: "sanchan",
-  name: "三日月",
+  name: "太陽ちゃん",
   state: "happy",
   comment: "今日もがんばろう。",
   updatedAt: Date.now(),
