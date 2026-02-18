@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 /* 雨のアニメーション */
 @keyframes rain-fall {
   0% { transform: translateY(-100%); }
