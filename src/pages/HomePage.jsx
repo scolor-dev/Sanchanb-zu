@@ -5,11 +5,7 @@ import TodoModal from "../components/modals/TodoModal";
 import { useCharacterStore } from "../stores/characterStore";
 import confetti from "canvas-confetti";
 
-import {
-  useWeather,
-  WeatherBackground,
-  bgClassFromWeather,
-} from "../components/weather";
+import { useWeather, WeatherBackground, bgClassFromWeather } from "../components/weather";
 
 // --- ヘルパー関数 ---
 function todayYYYYMMDD() {
@@ -35,7 +31,7 @@ export default function HomePage() {
   const removeTodo = useTodoStore((s) => s.removeTodo);
   const toggleTodo = useTodoStore((s) => s.toggleTodo);
 
-  // キャラクターStore
+  // キャラクターStore（重複宣言は1回だけ）
   const setMoodByWeeklyRate = useCharacterStore((s) => s.setMoodByWeeklyRate);
 
   const todos = useMemo(() => {
@@ -43,7 +39,7 @@ export default function HomePage() {
   }, [allTodos, date]);
 
   // -------------------------------------------------------------------
-  // 📊 達成率計算ロジック（learn_5 から採用）
+  // 📊 達成率計算ロジック
   // -------------------------------------------------------------------
   useEffect(() => {
     if (allTodos.length === 0) return;
@@ -64,7 +60,7 @@ export default function HomePage() {
     }
   }, [allTodos, setMoodByWeeklyRate]);
 
-  // --- 既存のハンドラ ---
+  // --- ハンドラ ---
   const handleEditClick = (todo) => {
     setEditTarget(todo);
     setOpen(true);
@@ -135,11 +131,10 @@ export default function HomePage() {
                       {todo.title}
                     </div>
 
-                    {/* 必要なら復活
+                    {/* 重要度表示（Api側の要素を復活） */}
                     <div className="mt-1 text-xs text-slate-500">
                       重要度: {todo.priority}
                     </div>
-                    */}
                   </div>
 
                   <div className="flex items-center gap-x-3">
@@ -159,7 +154,6 @@ export default function HomePage() {
                     <button
                       onClick={() => {
                         toggleTodo(todo.id);
-                        // 未完了→完了に変わる時だけ紙吹雪
                         if (!todo.isCompleted) {
                           confetti({
                             particleCount: 100,
