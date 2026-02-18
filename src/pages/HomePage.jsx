@@ -1,14 +1,13 @@
 // src/pages/HomePage.jsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTodoStore } from "../stores/todoStore";
 import TodoModal from "../components/modals/TodoModal";
-import {
-  useWeather,
-  WeatherBackground,
-  bgClassFromWeather,
-} from "../components/weather";
+import { useCharacterStore } from "../stores/characterStore";
+import confetti from "canvas-confetti";
 
-// --- 既存のヘルパー関数 ---
+import { useWeather, WeatherBackground, bgClassFromWeather } from "../components/weather";
+
+// --- ヘルパー関数 ---
 function todayYYYYMMDD() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -18,26 +17,50 @@ function todayYYYYMMDD() {
 }
 
 export default function HomePage() {
-  // --- 既存のState ---
+  // --- State ---
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(todayYYYYMMDD());
   const today = todayYYYYMMDD();
   const [editTarget, setEditTarget] = useState(null);
 
   // --- 天気（components/weather に分離） ---
-  // testMode: true の間は 0.5秒後に Clear/Clouds/Rain をランダム
-  // 本番にするなら testMode: false にして apiKey を設定
+  // 本番にするなら testMode: false にして apiKey 等を設定
   const weather = useWeather({ testMode: true, city: "Fukuoka" });
 
   const allTodos = useTodoStore((s) => s.todos);
   const removeTodo = useTodoStore((s) => s.removeTodo);
   const toggleTodo = useTodoStore((s) => s.toggleTodo);
 
+  // キャラクターStore（重複宣言は1回だけ）
+  const setMoodByWeeklyRate = useCharacterStore((s) => s.setMoodByWeeklyRate);
+
   const todos = useMemo(() => {
     return allTodos.filter((t) => t.date === date);
   }, [allTodos, date]);
 
-  // --- 既存のハンドラ ---
+  // -------------------------------------------------------------------
+  // 📊 達成率計算ロジック
+  // -------------------------------------------------------------------
+  useEffect(() => {
+    if (allTodos.length === 0) return;
+
+    const now = new Date();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(now.getDate() - 7);
+
+    const weeklyTodos = allTodos.filter((t) => {
+      const todoDate = new Date(t.date);
+      return todoDate >= oneWeekAgo && todoDate <= now;
+    });
+
+    if (weeklyTodos.length > 0) {
+      const completedCount = weeklyTodos.filter((t) => t.isCompleted).length;
+      const rate = (completedCount / weeklyTodos.length) * 100;
+      setMoodByWeeklyRate(rate);
+    }
+  }, [allTodos, setMoodByWeeklyRate]);
+
+  // --- ハンドラ ---
   const handleEditClick = (todo) => {
     setEditTarget(todo);
     setOpen(true);
@@ -52,14 +75,12 @@ export default function HomePage() {
   const bgClass = bgClassFromWeather(weather);
 
   return (
-    <div
-      className={`relative min-h-screen transition-colors duration-1000 ${bgClass}`}
-    >
-      {/* 背景エフェクト */}
+    <div className={`relative min-h-screen transition-colors duration-1000 ${bgClass}`}>
+      {/* 背景エフェクト（分離側を採用） */}
       <WeatherBackground weather={weather} />
 
       {/* コンテンツ（手前） */}
-      <div className="relative z-10 space-y-6 p-6">
+      <div className="relative z-10 space-y-6 p-6 pt-32 md:pt-24">
         <div className="flex items-center justify-between">
           <input
             type="date"
@@ -89,10 +110,14 @@ export default function HomePage() {
                 key={todo.id}
                 className={[
                   "rounded-2xl border p-4 shadow-sm transition-colors backdrop-blur-sm",
-                  isPastAndIncomplete
-                    ? "bg-slate-100/90 border-slate-200"
-                    : todo.isCompleted
+                  todo.isCompleted
                     ? "bg-green-50/90 border-green-200"
+                    : todo.priority === 3
+                    ? "bg-red-50/90 border-red-300"
+                    : todo.priority === 2
+                    ? "bg-yellow-50/90 border-yellow-300"
+                    : isPastAndIncomplete
+                    ? "bg-slate-100/90 border-slate-200"
                     : "bg-white/90 border-slate-200",
                 ].join(" ")}
               >
@@ -105,6 +130,8 @@ export default function HomePage() {
                     >
                       {todo.title}
                     </div>
+
+                    {/* 重要度表示（Api側の要素を復活） */}
                     <div className="mt-1 text-xs text-slate-500">
                       重要度: {todo.priority}
                     </div>
@@ -117,7 +144,6 @@ export default function HomePage() {
                     >
                       編集
                     </button>
-
                     <button
                       onClick={() => removeTodo(todo.id)}
                       className="text-xs text-red-500 hover:underline"
@@ -126,7 +152,16 @@ export default function HomePage() {
                     </button>
 
                     <button
-                      onClick={() => toggleTodo(todo.id)}
+                      onClick={() => {
+                        toggleTodo(todo.id);
+                        if (!todo.isCompleted) {
+                          confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                          });
+                        }
+                      }}
                       className={`rounded-lg px-2 py-1 text-xs font-medium border ${
                         todo.isCompleted
                           ? "border-slate-300 text-slate-500 hover:bg-slate-100"

@@ -25,9 +25,8 @@ export default function AppHeader() {
       dark:supports-[backdrop-filter]:bg-slate-900/70
     ">
       <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
-        <div className="text-sm font-semibold text-slate-900 dark:text-white">
-          さんちゃん坊主
-        </div>
+        <div className="text-sm font-semibold"><NavLink to="/" end className={linkClass}><img src="/character/icon.png" alt="icon" className="w-12 h-12 rounded-full object-cover "
+ /></NavLink></div>
 
         {/* PCナビ */}
         <nav className="hidden sm:flex items-center gap-4">

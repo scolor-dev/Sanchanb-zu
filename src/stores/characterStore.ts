@@ -23,6 +23,13 @@ type CharacterStore = {
   getIconSrc: () => string;
   getStandSrc: () => string;
 
+  setHappyMode: () => void;
+  setSadMode: () => void;
+  setAngryMode: () => void;
+
+  // 達成率に応じて自動で機嫌を変えるアクション
+  setMoodByWeeklyRate: (rate: number) => void;
+
   reset: () => void;
 };
 
@@ -44,10 +51,25 @@ const STAND_BY_STATE: Record<CharacterStateKey, string> = {
 
 const DEFAULT: CharacterModel = {
   characterId: "sanchan",
-  name: "太陽ちゃん",
+  name: "三日月",
   state: "happy",
   comment: "今日もがんばろう。",
   updatedAt: Date.now(),
+};
+
+const PRESETS = {
+  happy: {
+    state: "happy" as CharacterStateKey,
+    comment: "今日もいい天気だね！",
+  },
+  sad: {
+    state: "sad" as CharacterStateKey,
+    comment: "なんだかやる気が出ないなぁ...",
+  },
+  angry: {
+    state: "angry" as CharacterStateKey,
+    comment: "もう！なんでうまくいかないの！",
+  },
 };
 
 export const useCharacterStore = create<CharacterStore>()(
@@ -89,6 +111,49 @@ export const useCharacterStore = create<CharacterStore>()(
         const st = get().current.state;
         return STAND_BY_STATE[st] ?? STAND_BY_STATE.normal;
       },
+
+      setHappyMode: () =>
+        set((s) => ({
+          current: { ...s.current, ...PRESETS.happy, updatedAt: Date.now() },
+        })),
+
+      setSadMode: () =>
+        set((s) => ({
+          current: { ...s.current, ...PRESETS.sad, updatedAt: Date.now() },
+        })),
+
+      setAngryMode: () =>
+        set((s) => ({
+          current: { ...s.current, ...PRESETS.angry, updatedAt: Date.now() },
+        })),
+
+      // ▼ 小数点を含めて正しく判定するように修正されたバージョン
+      setMoodByWeeklyRate: (rate: number) =>
+        set((s) => {
+          // 条件1: 0% ～ 3.99...% (ほぼ3%以下) -> Sad
+          if (rate < 4) {
+            if (s.current.state === "sad") return s;
+            return {
+              current: { ...s.current, ...PRESETS.sad, updatedAt: Date.now() },
+            };
+          }
+
+          // 条件2: 4% ～ 33.99...% (34%未満) -> Angry
+          else if (rate < 34) {
+            if (s.current.state === "angry") return s;
+            return {
+              current: { ...s.current, ...PRESETS.angry, updatedAt: Date.now() },
+            };
+          }
+
+          // 条件3: 34%以上 -> Happy
+          else {
+            if (s.current.state === "happy") return s;
+            return {
+              current: { ...s.current, ...PRESETS.happy, updatedAt: Date.now() },
+            };
+          }
+        }),
 
       reset: () => set(() => ({ current: DEFAULT })),
     }),

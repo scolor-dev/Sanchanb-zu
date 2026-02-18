@@ -25,3 +25,8 @@ dist-ssr
 
 # electron
 dist-electron
+
+.env
+.env.local
+node_modules
+...
