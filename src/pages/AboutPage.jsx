@@ -79,6 +79,7 @@ export default function About() {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
+
           
           {/* 中央の％表示 */}
           <div style={{

@@ -1,6 +1,6 @@
-// src/components/modals/TodoAddModal.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useTodoStore, type TodoItem } from "../../stores/todoStore";
+import { useToast } from "../toast"; // ✅ 追加
 
 type Priority = 1 | 2 | 3;
 
@@ -30,11 +30,7 @@ export default function TodoAddModal({
     [initialDate],
   );
 
-  // editTargetやdefaultDateが変わったらフォームStateを作り直す
-  // 新規作成: 日付が変わったら初期日付も反映させたいのでdefaultDateもキーに含める
-  const formKey = editTarget
-    ? `edit-${editTarget.id}`
-    : `create-${defaultDate}`;
+  const formKey = editTarget ? `edit-${editTarget.id}` : `create-${defaultDate}`;
 
   if (!open) return null;
 
@@ -60,6 +56,8 @@ function TodoAddModalUI({
   const addTodo = useTodoStore((s) => s.addTodo);
   const updateTodo = useTodoStore((s) => s.updateTodo);
 
+  const toast = useToast(); // ✅ 追加
+
   const [date, setDate] = useState(editTarget?.date ?? defaultDate);
   const [title, setTitle] = useState(editTarget?.title ?? "");
   const [content, setContent] = useState(editTarget?.content ?? "");
@@ -67,7 +65,6 @@ function TodoAddModalUI({
     (editTarget?.priority as Priority) ?? 2,
   );
 
-  // Escで閉じる（外部イベント購読なのでuseEffectはOK）
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -89,6 +86,9 @@ function TodoAddModalUI({
         content: content.trim(),
         priority,
       });
+
+      // ✅ 編集完了トースト
+      toast.success("Todoを更新しました");
     } else {
       addTodo({
         date,
@@ -96,7 +96,11 @@ function TodoAddModalUI({
         content: content.trim(),
         priority,
       });
+
+      // ✅ 追加完了トースト
+      toast.success("Todoを追加しました");
     }
+
     onClose();
   };
 
