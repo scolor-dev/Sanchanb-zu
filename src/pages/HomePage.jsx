@@ -1,36 +1,12 @@
 // src/pages/HomePage.jsx
-import { useMemo, useState, useEffect } from "react"; //   useEffectを追加
+import { useMemo, useState } from "react";
 import { useTodoStore } from "../stores/todoStore";
 import TodoModal from "../components/modals/TodoModal";
-
-// ---  追加: 雨のエフェクト用 ---
-const makeDrops = () =>
-  Array.from({ length: 40 }, () => ({
-    left: `${Math.random() * 100}vw`,
-    delay: `${Math.random() * 2}s`,
-    duration: `${0.5 + Math.random() * 0.5}s`,
-  }));
-
-const RainEffect = () => {
-  // ✅ 初回マウント時にだけ生成して固定（レンダー中に Math.random を呼ばない扱いにできる）
-  const [drops] = useState(makeDrops);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {drops.map((style, i) => (
-        <div
-          key={i}
-          className="rain-drop"
-          style={{
-            left: style.left,
-            animationDelay: style.delay,
-            animationDuration: style.duration,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+import {
+  useWeather,
+  WeatherBackground,
+  bgClassFromWeather,
+} from "../components/weather";
 
 // --- 既存のヘルパー関数 ---
 function todayYYYYMMDD() {
@@ -48,9 +24,10 @@ export default function HomePage() {
   const today = todayYYYYMMDD();
   const [editTarget, setEditTarget] = useState(null);
 
-  // --- ✨ 追加: 天気管理用のState ---
-  // 初期値は null にしておき、取得できるまでは何もしない（または晴れ扱い）
-  const [weather, setWeather] = useState("Clear");
+  // --- 天気（components/weather に分離） ---
+  // testMode: true の間は 0.5秒後に Clear/Clouds/Rain をランダム
+  // 本番にするなら testMode: false にして apiKey を設定
+  const weather = useWeather({ testMode: true, city: "Fukuoka" });
 
   const allTodos = useTodoStore((s) => s.todos);
   const removeTodo = useTodoStore((s) => s.removeTodo);
@@ -60,63 +37,6 @@ export default function HomePage() {
     return allTodos.filter((t) => t.date === date);
   }, [allTodos, date]);
 
- // -------------------------------------------------------------------
-  // 🌤️天気取得ロジック (API と テスト用シミュレーションの両方を含む)
-  // -------------------------------------------------------------------
-  useEffect(() => {
-    //  設定: ここを true にするとAPIを使わずテストモード
-    const IS_TEST_MODE = true; 
-
-    const fetchWeather = async () => {
-      // -------------------------------------------
-      // 【パターンA】 テスト用シミュレーション
-      // -------------------------------------------
-      if (IS_TEST_MODE) {
-        console.log("🛠️ テストモード: 天気をシミュレーションします");
-        
-        // 0.5秒後にランダムで天気を決定 (またはここで "Rain" 固定などに書き換えてテスト)
-        setTimeout(() => {
-          const patterns = ["Clear", "Clouds", "Rain"];
-          // ランダムに選ぶ
-          const randomWeather = patterns[Math.floor(Math.random() * patterns.length)];
-          
-          console.log(`🎲 テスト結果: ${randomWeather}`);
-          setWeather(randomWeather);
-        }, 500);
-        return; 
-      }
-
-      
-      // -------------------------------------------
-      // 【パターンB】 本番用 (OpenWeatherMap API)
-      // -------------------------------------------
-      const API_KEY = "12ad352acdd75d4eb6919e18fddd9807";
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=Fukuoka&appid=${API_KEY}&units=metric`;
-
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`API Error: ${res.status}`);
-
-        const data = await res.json();
-        const main = data.weather[0].main; // "Clear", "Rain", "Clouds" 等
-        console.log("🌍 API取得成功:", main);
-
-        if (["Rain", "Drizzle", "Thunderstorm"].includes(main)) {
-          setWeather("Rain");
-        } else if (main === "Clouds") {
-          setWeather("Clouds");
-        } else {
-          setWeather("Clear");
-        }
-      } catch (error) {
-        console.error("❌ 天気取得エラー:", error);
-        // エラー時はデフォルトで晴れにする
-        setWeather("Clear");
-      }
-    };
-
-    fetchWeather();
-  }, []);
   // --- 既存のハンドラ ---
   const handleEditClick = (todo) => {
     setEditTarget(todo);
@@ -128,36 +48,23 @@ export default function HomePage() {
     setEditTarget(null);
   };
 
-  // --- ✨ 変更: 背景色を天気によって動的に変える ---
-  // 晴れ: bg-orange-50 (暖色系)
-  // 雨: bg-slate-200 (暗めの灰色)
-  // 曇り: bg-gray-100 (薄い灰色)
-  const bgClass =
-    weather === "Rain"
-      ? "bg-slate-200/80"
-      : weather === "Clouds"
-      ? "bg-gray-100"
-      : "bg-orange-50/30";
+  // --- 背景色（weatherMap に分離） ---
+  const bgClass = bgClassFromWeather(weather);
 
   return (
-    // ✨ 変更: 全体を包むdivに背景色と min-h-screen (画面いっぱい) を設定
-    <div className={`relative min-h-screen transition-colors duration-1000 ${bgClass}`}>
-      
-      {/* ✨ 追加: 天気エフェクトの表示エリア (背景) */}
-      {weather === "Rain" && <RainEffect />}
-      {weather === "Clear" && <div className="fixed inset-0 sunny-overlay z-0" />}
-      {weather === "Clouds" && <div className="fixed inset-0 cloudy-overlay z-0" />}
+    <div
+      className={`relative min-h-screen transition-colors duration-1000 ${bgClass}`}
+    >
+      {/* 背景エフェクト */}
+      <WeatherBackground weather={weather} />
 
-      {/* ✨ 変更: コンテンツエリア (z-indexを指定してエフェクトより手前に表示) */}
-      <div className="relative z-10 space-y-6 p-6"> {/* p-6を追加して余白確保 */}
-        
-        {/* --- ここから下は元のコードと同じ --- */}
+      {/* コンテンツ（手前） */}
+      <div className="relative z-10 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            // ✨ 変更: 背景が透けないように少し白を乗せる
             className="rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white/80 backdrop-blur-sm"
           />
 
@@ -180,7 +87,6 @@ export default function HomePage() {
             return (
               <div
                 key={todo.id}
-                // ✨ 変更: カードの背景も少し透過させてなじませる (bg-white/90など)
                 className={[
                   "rounded-2xl border p-4 shadow-sm transition-colors backdrop-blur-sm",
                   isPastAndIncomplete
