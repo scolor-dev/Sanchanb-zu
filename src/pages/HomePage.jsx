@@ -182,7 +182,7 @@ export default function HomePage() {
                 // ✨ 変更: カードの背景も少し透過させてなじませる (bg-white/90など)
                 className={[
                   "rounded-2xl border p-4 shadow-sm transition-colors backdrop-blur-sm",
-                  todo.isCompleted
+                  todo.isCompleted   //重要度に応じてカードの色が変化する
                     ? "bg-green-50/90 border-green-200"
                     : todo.priority === 3
                     ? "bg-red-50/90 border-red-300"
@@ -202,9 +202,11 @@ export default function HomePage() {
                     >
                       {todo.title}
                     </div>
+                  {/*
                     <div className="mt-1 text-xs text-slate-500">
                       重要度: {todo.priority}
                     </div>
+                  */}
                   </div>
 
                   <div className="flex items-center gap-x-3">
