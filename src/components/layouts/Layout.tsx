@@ -5,7 +5,7 @@ import CharacterFooter from "../character/CharacterFooter";
 
 export default function AppLayout() {
   return (
-    <div className="min-h-dvh bg-white text-slate-900">
+    <div className="min-h-dvh bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <AppHeader />
 
       {/* スマホ固定フッター分の余白（lg未満のみ） */}
