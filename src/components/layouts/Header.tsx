@@ -17,7 +17,8 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
-        <div className="text-sm font-semibold">さんちゃん坊主</div>
+        <div className="text-sm font-semibold"><NavLink to="/" end className={linkClass}><img src="/character/icon.png" alt="icon" className="w-12 h-12 rounded-full object-cover "
+ /></NavLink></div>
 
         {/* PCナビ */}
         <nav className="hidden sm:flex items-center gap-4">

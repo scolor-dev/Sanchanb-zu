@@ -89,10 +89,14 @@ export default function HomePage() {
                 key={todo.id}
                 className={[
                   "rounded-2xl border p-4 shadow-sm transition-colors backdrop-blur-sm",
-                  isPastAndIncomplete
-                    ? "bg-slate-100/90 border-slate-200"
-                    : todo.isCompleted
+                  todo.isCompleted   //重要度に応じてカードの色が変化する
                     ? "bg-green-50/90 border-green-200"
+                    : todo.priority === 3
+                    ? "bg-red-50/90 border-red-300"
+                    : todo.priority === 2
+                    ? "bg-yellow-50/90 border-yellow-300"
+                    : isPastAndIncomplete
+                    ? "bg-slate-100/90 border-slate-200"
                     : "bg-white/90 border-slate-200",
                 ].join(" ")}
               >
@@ -105,9 +109,11 @@ export default function HomePage() {
                     >
                       {todo.title}
                     </div>
+                  {/*
                     <div className="mt-1 text-xs text-slate-500">
                       重要度: {todo.priority}
                     </div>
+                  */}
                   </div>
 
                   <div className="flex items-center gap-x-3">
