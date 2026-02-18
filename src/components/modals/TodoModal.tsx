@@ -118,7 +118,13 @@ function TodoAddModalUI({
         <div
           role="dialog"
           aria-modal="true"
-          className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl"
+          className="w-full max-w-lg
+    max-h-[calc(100dvh-3.5rem-2rem)]
+    overflow-hidden
+    rounded-2xl p-5 shadow-xl
+    bg-white text-slate-900 border border-slate-200
+    dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700
+    flex flex-col"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -140,7 +146,7 @@ function TodoAddModalUI({
             </button>
           </div>
 
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 space-y-4 overflow-y-auto pr-1">
             {/* 日付 */}
             <div>
               <label className="block text-sm font-medium text-slate-700">

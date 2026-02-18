@@ -18,7 +18,7 @@ export default function AppHeader() {
 
   return (
     <header className="
-      sticky top-0 z-50 border-b
+      sticky top-0 z-40 border-b
       border-slate-200 dark:border-slate-700
       bg-white/90 dark:bg-slate-900/90
       backdrop-blur supports-[backdrop-filter]:bg-white/70
