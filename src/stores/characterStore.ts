@@ -27,8 +27,10 @@ type CharacterStore = {
   setSadMode: () => void;
   setAngryMode: () => void;
 
-  // 達成率に応じて自動で機嫌を変えるアクション
   setMoodByWeeklyRate: (rate: number) => void;
+  
+  // ✨ 追加: ランダムに喋る機能
+  sayRandomLine: () => void;
 
   reset: () => void;
 };
@@ -51,7 +53,7 @@ const STAND_BY_STATE: Record<CharacterStateKey, string> = {
 
 const DEFAULT: CharacterModel = {
   characterId: "sanchan",
-  name: "三日月",
+  name: "さんちゃん",
   state: "happy",
   comment: "今日もがんばろう。",
   updatedAt: Date.now(),
@@ -60,7 +62,7 @@ const DEFAULT: CharacterModel = {
 const PRESETS = {
   happy: {
     state: "happy" as CharacterStateKey,
-    comment: "今日もいい天気だね！",
+    comment: "すごいすごーい！その調子！",
   },
   sad: {
     state: "sad" as CharacterStateKey,
@@ -71,6 +73,19 @@ const PRESETS = {
     comment: "もう！なんでうまくいかないの！",
   },
 };
+
+// ✨ 追加: ランダム台詞リスト
+const RANDOM_COMMENTS = [
+  "えらーい！",
+  "その調子！",
+  "ちょっと休憩する？",
+  "おやつ食べたいな〜",
+  "...",
+  "水分補給も忘れないでね！",
+  "見てるよ〜！",
+  "すごい集中力…！",
+  "昨日超かぐや姫のチケ買ってたら午前2時になってた…",
+];
 
 export const useCharacterStore = create<CharacterStore>()(
   persist(
@@ -127,36 +142,36 @@ export const useCharacterStore = create<CharacterStore>()(
           current: { ...s.current, ...PRESETS.angry, updatedAt: Date.now() },
         })),
 
-      // ▼ 小数点を含めて正しく判定するように修正されたバージョン
+      // ✨ 修正: Todo操作時に必ず台詞を元に戻すように if (s.current.state === ...) のガードを削除
       setMoodByWeeklyRate: (rate: number) =>
         set((s) => {
-          // 条件1: 0% ～ 3.99...% (ほぼ3%以下) -> Sad
           if (rate < 4) {
-            if (s.current.state === "sad") return s;
-            return {
-              current: { ...s.current, ...PRESETS.sad, updatedAt: Date.now() },
-            };
+             // ガード節を削除し、常に上書き更新する
+             return {
+               current: { ...s.current, ...PRESETS.sad, updatedAt: Date.now() },
+             };
+          } else if (rate < 34) {
+             return {
+               current: { ...s.current, ...PRESETS.angry, updatedAt: Date.now() },
+             };
+          } else {
+             return {
+               current: { ...s.current, ...PRESETS.happy, updatedAt: Date.now() },
+             };
           }
+        }),
 
-          // 条件2: 4% ～ 33.99...% (34%未満) -> Angry
-          else if (rate < 34) {
-            if (s.current.state === "angry") return s;
-            return {
-              current: { ...s.current, ...PRESETS.angry, updatedAt: Date.now() },
-            };
-          }
-
-          // 条件3: 34%以上 -> Happy
-          else {
-            if (s.current.state === "happy") return s;
-            return {
-              current: { ...s.current, ...PRESETS.happy, updatedAt: Date.now() },
-            };
-          }
+      // ✨ 追加: ランダム台詞をセットするアクション
+      sayRandomLine: () => 
+        set((s) => {
+          const randomText = RANDOM_COMMENTS[Math.floor(Math.random() * RANDOM_COMMENTS.length)];
+          return {
+            current: { ...s.current, comment: randomText, updatedAt: Date.now() }
+          };
         }),
 
       reset: () => set(() => ({ current: DEFAULT })),
     }),
-    { name: "character-store-v1" }
+    { name: "character-store-v2" }
   )
 );
