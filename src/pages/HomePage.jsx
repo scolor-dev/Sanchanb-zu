@@ -4,15 +4,16 @@ import { useTodoStore } from "../stores/todoStore";
 import TodoModal from "../components/modals/TodoModal";
 
 // ---  追加: 雨のエフェクト用 ---
+const makeDrops = () =>
+  Array.from({ length: 40 }, () => ({
+    left: `${Math.random() * 100}vw`,
+    delay: `${Math.random() * 2}s`,
+    duration: `${0.5 + Math.random() * 0.5}s`,
+  }));
+
 const RainEffect = () => {
-  // 雨粒をランダムに生成（位置、遅延、速度）
-  const drops = useMemo(() => {
-    return Array.from({ length: 40 }).map(() => ({
-      left: Math.random() * 100 + "vw",
-      delay: Math.random() * 2 + "s",
-      duration: 0.5 + Math.random() * 0.5 + "s",
-    }));
-  }, []);
+  // ✅ 初回マウント時にだけ生成して固定（レンダー中に Math.random を呼ばない扱いにできる）
+  const [drops] = useState(makeDrops);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
